@@ -1,0 +1,20 @@
+on:
+    push:
+jobs:
+    extract-voyager-ver:
+        runs-on: ubuntu-latest
+        outputs:
+          ver: ${{ steps.voyager-ver.outputs.VER }}
+        steps:
+          - uses: actions/checkout@v3
+          - id: pkg-ver
+            run: echo "VER=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+          - id: git-sha-short
+            run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          - id: voyager-ver
+            run: echo "VER=v${{ steps.pkg-ver.outputs.VER }}-${{ steps.git-sha-short.outputs.SHA }}" >> $GITHUB_OUTPUT
+    print-ver:
+        needs: extract-voyager-ver
+        runs-on: ubuntu-latest
+        steps:
+            - run: echo ${{ needs.extract-voyager-ver.outputs.ver }}
